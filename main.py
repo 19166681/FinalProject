@@ -6,7 +6,10 @@ from pathlib import Path
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
 # Set the video file path
+#first path is for windows pc
 video_path = "C:/Users/rocke/OneDrive/Desktop/uni/Cristiano Ronaldo's incredible free-kick for Manchester United against Portsmouth.mp4"
+#second path is for mac pc
+#video_path = "C:/Users/rocke/OneDrive/Desktop/uni/Cristiano Ronaldo's incredible free-kick for Manchester United against Portsmouth.mp4"
 output_dir = Path("C:/Users/rocke/OneDrive/Desktop/uni/output")
 output_dir.mkdir(parents=True, exist_ok=True)
 
