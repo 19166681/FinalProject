@@ -12,31 +12,33 @@ def load_yolo_model():
 
 
 
-def process_video(video_path,output_dir,model):
-   #too see if the path actually exists
-   output_dir = Path(output_dir)
-   output_dir.mkdir(parents=True, exist_ok=True)
+def process_video(video_path, output_dir, model):
+    """Process a video and save the output with YOLO detections."""
+    # Ensure the output directory exists
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-   # this is just to open the video file
-   cap = cv2.VideoCapture(video_path)
-   frame_width= int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-   frame_height= int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-   fps = int(cap.get(cv2.CAP_PROP_FPS))
-   if frame_width != None or frame_height != None:
-       print(f'Frame width: {frame_width}')
-       print(f'Frame height: {frame_height}')
+    # Open the video file
+    cap = cv2.VideoCapture(video_path)
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
 
+    # Debugging frame dimensions
+    print(f"Frame width: {frame_width}, Frame height: {frame_height}, FPS: {fps}")
 
-   # this is for the annoted output video
-   out_video_path = str(output_dir / "output_video.avi")
-   fourcc = cv2.VideoWriter_fourcc(*'XVID')
-   out = cv2.VideoWriter(out_video_path, fourcc, fps, (frame_width, frame_height))
+    # Provide default frame size if invalid
+    if frame_width == 0 or frame_height == 0:
+        frame_width, frame_height = 640, 480  # Default frame size
 
+    # Setup video writer for annotated output
+    out_video_path = str(output_dir / "output_video.avi")
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(out_video_path, fourcc, fps, (frame_width, frame_height))
 
+    frame_count = 0
 
-   frame_count= 0
-
-   while cap.isOpened():
+    while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
@@ -46,6 +48,14 @@ def process_video(video_path,output_dir,model):
 
         # Run YOLO model on the frame
         results = model(frame_rgb)
+
+        # Extract bounding box data
+        detections = results.pred[0].cpu().numpy()  # Convert to NumPy for easier processing
+        for det in detections:
+            x1, y1, x2, y2, conf, class_id = det
+            class_name = model.names[int(class_id)]  # Get class name from model
+            print(f"Frame {frame_count}: Class={class_name}, Confidence={conf:.2f}, "
+                  f"BBox=({x1:.0f}, {y1:.0f}, {x2:.0f}, {y2:.0f})")
 
         # Render results on the frame
         annotated_frame = results.render()[0]
@@ -61,14 +71,14 @@ def process_video(video_path,output_dir,model):
         frame_count += 1
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
-         break
+            break
 
-   cap.release()
-   out.release()
-   cv2.destroyAllWindows()
+    cap.release()
+    out.release()
+    cv2.destroyAllWindows()
 
-   print(f"Processed video saved at: {out_video_path}")
-   print(f"Extracted {frame_count} frames to {output_dir}")
+    print(f"Processed video saved at: {out_video_path}")
+    print(f"Extracted {frame_count} frames to {output_dir}")
 
 def save_frame(frame, output_dir, frame_count):
 
