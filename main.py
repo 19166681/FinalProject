@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     yolo_model = load_yolo_model()
 
-    class_names= ['goalPost', 'Person', 'sports ball']
+    class_names= ['goalPost', 'Person', 'sports ball', 'ballMark']
 
     # Process video
     process_video(video_path, output_dir, yolo_model)
