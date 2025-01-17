@@ -4,4 +4,4 @@ train: '/Users/rovitsanthapa/Desktop/test data'  # Path to training images
 val: '/Users/rovitsanthapa/Desktop/test data'  # Path to validation images
 
 nc: 3  # Number of classes
-names: ['goalPost', 'Person', 'sports ball']  # Replace with your class names
+names: ['goalPost', 'Person', 'sports ball', 'ballMark']  # Replace with your class names
