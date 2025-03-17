@@ -1,3 +1,5 @@
+import json
+
 import cv2
 import os
 import setuptools.dist
@@ -140,10 +142,25 @@ if __name__ == "__main__":
 
 
 
+def save_keyPoint_data(save_dir):
+    os.makedirs(save_dir,exist_ok=True)
+
+    run_number=1
+    while os.path.exists(os.path.join(save_dir,f"run_{run_number}.json")):
+        run_number+=1
+
+    file_path =os.path.join(save_dir,f"run_{run_number}.json")
+    with open(file_path, "w") as f:
+        json.dump(run_number,f, indent=4)
+
+    print(f"Keypoints data Saved to {file_path}")
 
 
-    #python train.py --img 1280 --batch 16 --epochs 50 --data /Users/rovitsanthapa/Documents/GitHub/FinalProject/training.yml --weights yolov5s.pt
 
-    #python train.py --img 1280--batch 16 --epochs 100 --data /Users/rovitsanthapa/Documents/GitHub/FinalProject/training.yml --weights yolov5s.pt
+
+
+#python train.py --img 1280 --batch 16 --epochs 50 --data /Users/rovitsanthapa/Documents/GitHub/FinalProject/training.yml --weights yolov5s.pt
+
+#python train.py --img 1280--batch 16 --epochs 100 --data /Users/rovitsanthapa/Documents/GitHub/FinalProject/training.yml --weights yolov5s.pt
 
 
