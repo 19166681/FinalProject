@@ -1,5 +1,5 @@
 import json
-
+import numpy as np
 import cv2
 import os
 import setuptools.dist
@@ -27,6 +27,23 @@ def load_yolo_model():
    # Uncomment the following line to use the default YOLOv8 model
    #return YOLO("/Users/rovitsanthapa/Documents/GitHub/FinalProject/yolov8n-pose.pt")
    return YOLO(model_path)
+
+
+def save_keyPoint_data(keypoint_data,save_dir):
+    os.makedirs(save_dir,exist_ok=True)
+
+    run_number=1
+    while os.path.exists(os.path.join(save_dir,f"run_{run_number}.json")):
+        run_number+=1
+
+    file_path =os.path.join(save_dir,f"run_{run_number}.json")
+    with open(file_path, "w") as f:
+        json.dump(keypoint_data,f, indent=4)
+
+    print(f"Keypoints data Saved to {file_path}")
+
+
+
 
 
 def process_video(video_path, output_dir, model):
@@ -61,7 +78,7 @@ def process_video(video_path, output_dir, model):
 
 
    frame_count = 0
-
+   all_keyPoints =[]
 
    while cap.isOpened():
        ret, frame = cap.read()
@@ -71,17 +88,19 @@ def process_video(video_path, output_dir, model):
         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
        # Run YOLOv8 Pose model on the frame
        results = model(frame)
-
+       frame_keyPoints=[]
 
        # Extract keypoints from detections
        for detection in results:
            if hasattr(detection, 'keypoints') and detection.keypoints is not None:
-               keypoints = detection.keypoints.numpy()  # Convert keypoints to NumPy
+               keypoints = detection.keypoints.data.cpu().numpy().tolist()  # Convert keypoints to NumPy
+
+               frame_keyPoints.append(keypoints )
                print(f"Frame {frame_count}: Keypoints: {keypoints}")
            else:
                print(f"Frame {frame_count}: No keypoints detected.")
 
-
+       all_keyPoints.append({"frame": frame_count, "keypoints": frame_keyPoints})
        # Annotate frame with pose landmarks
        annotated_frame = results[0].plot()
 
@@ -109,7 +128,7 @@ def process_video(video_path, output_dir, model):
    out.release()
    cv2.destroyAllWindows()
 
-
+   save_keyPoint_data(all_keyPoints,r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\runs")
    print(f"Processed video saved at: {out_video_path}")
 
 
@@ -126,7 +145,7 @@ if __name__ == "__main__":
 
 
    # Set the video file path
-   video_path = r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\videos\video1.mov"
+   video_path = r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\videos\video4.mov"
    output_dir = Path(r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\output")
 
    # Load YOLOv8 Pose model
@@ -142,25 +161,11 @@ if __name__ == "__main__":
 
 
 
-def save_keyPoint_data(save_dir):
-    os.makedirs(save_dir,exist_ok=True)
-
-    run_number=1
-    while os.path.exists(os.path.join(save_dir,f"run_{run_number}.json")):
-        run_number+=1
-
-    file_path =os.path.join(save_dir,f"run_{run_number}.json")
-    with open(file_path, "w") as f:
-        json.dump(run_number,f, indent=4)
-
-    print(f"Keypoints data Saved to {file_path}")
-
-
-
 
 
 #python train.py --img 1280 --batch 16 --epochs 50 --data /Users/rovitsanthapa/Documents/GitHub/FinalProject/training.yml --weights yolov5s.pt
 
 #python train.py --img 1280--batch 16 --epochs 100 --data /Users/rovitsanthapa/Documents/GitHub/FinalProject/training.yml --weights yolov5s.pt
+
 
 
