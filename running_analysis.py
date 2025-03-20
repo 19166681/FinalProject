@@ -67,16 +67,45 @@ class RunningAnalysis:
             print(f'Frame {i+1} : {frame["keypoints"]}')
 
 
+   def test_function(self):
+      run_data=self.get_all_keypoints()
+      # i and frame_keypoints are the varibhles that change in the for loop
+      #i is just the varble that goes up by 1 for the index of the frames
+      # frame_keypoints is the frames keypoints data duuuh so thier should be 15
+      #frame_keypoints[0][0][x][z]
+      #x is the keypoint so if i make x 15 it will give the 15th (left toe) keypoint data
+      #z is the keypoint dat so 0 will be the x coord, 1 will be the y coord , 2 wil be the confidence score
+      frameOfthelowestRheel=0
+      frameOfthelowestLheel = 0
+      lowest_Yvalue_ofRheel=20000
+      lowest_Yvalue_ofLheel = 20000
+      for i, frame_keypoints in enumerate(run_data):
+         print(f"i am pissing bruv "+ str(frame_keypoints[0][0][0][0]) )
+         print(f"Frame {i + 1} Keypoints Data: {frame_keypoints}")
+         if frame_keypoints[0][0][12][0] < lowest_Yvalue_ofRheel:
+            lowest_Yvalue_ofRheel = frame_keypoints[0][0][12][1]
+            frameOfthelowestRheel=i
+         if frame_keypoints[0][0][13][0] < lowest_Yvalue_ofLheel:
+            lowest_Yvalue_ofRheel = frame_keypoints[0][0][13][1]
+            frameOfthelowestLheel=i
+         if frame_keypoints:  # Ensure it's not empty
+            print(f"First Keypoint of Frame {i + 1}: {frame_keypoints[0]}")
+      print("frame of lowest Rheel" , str(frameOfthelowestRheel))
+      print("frame of lowest Rheel", str(frameOfthelowestLheel))
 
 
-
-
+'''for run in run_data:
+        print("the whole keypoint data : " , run)
+        if run[0] is not None:
+           print("hi   " , run["keypoints"][0])
+'''
 
 if __name__ == "__main__":
    runs_folder=r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\runs"
    analysis=RunningAnalysis(runs_folder)
    analysis.get_all_keypoints()
-   analysis.print_keypoints()
+   analysis.test_function()
+   #analysis.print_keypoints()
 
 
 
