@@ -207,6 +207,105 @@ class RunningAnalysis:
        else:
            print("No valid Rheel data found.")
 
+   def get_footStrike(self):
+       #calls the base line funtions first then  after y valuys reaches
+       #base line  it gets the y values of next 5 frames of the toes (YOMMY) and the heels
+       # and compares it
+       # coord works by (0,0) being top left and the more right yiu go x increases
+       # when u go down y increase
+       # so lets say the mean y values of the toes is higher than the heels means front foot striker
+       # if lower heel striker
+       # if around the same neutral foot striker
+       run_data = self.get_all_keypoints()
+       lheel_baseline_x, lheel_baseline_y = self.get_treadmill_baseLine_forLheel()
+       rheel_baseline_x, rheel_baseline_y = self.get_treadmill_baseLine_forRheel()
+
+       toe_index_L = 14
+       toe_index_R = 13
+       heel_index_L = 12
+       heel_index_R = 11
+
+       tolerance_ratio = 0.05
+       tolerance_y_L = lheel_baseline_y * tolerance_ratio
+       tolerance_y_R = rheel_baseline_y * tolerance_ratio
+
+       release_offset = 0.09
+
+       in_contact_L = False
+       in_contact_R = False
+
+
+       # gets the contact frame and goes back 2 frames and gets the 5 ahead of it
+       for i in range(2, len(run_data) - 2):
+           try:
+               frame = run_data[i][0][0]
+               lheel_y = frame[heel_index_L][1]
+               rheel_y = frame[heel_index_R][1]
+
+               lheel_touch = abs(lheel_y - (lheel_baseline_y + 10)) < tolerance_y_L
+               rheel_touch = abs(rheel_y - (rheel_baseline_y + 10)) < tolerance_y_R
+
+               # LEFT FOOT CONTACT
+               if lheel_touch and not in_contact_L:
+                   in_contact_L = True
+                   print(f"\n Left Foot Contact Detected at Frame {i}")
+                   self.left_contact_frames.append(i+1)
+                   heel_y_vals = []
+                   toe_y_vals = []
+
+                   for j in range(i - 2, i + 3):
+                       future_frame = run_data[j][0][0]
+                       heel_y_vals.append(future_frame[heel_index_L][1])
+                       toe_y_vals.append(future_frame[toe_index_L][1])
+
+                   mean_heel_y = sum(heel_y_vals) / len(heel_y_vals)
+                   mean_toe_y = sum(toe_y_vals) / len(toe_y_vals)
+
+                   print(f"  LHeel Y-avg: {mean_heel_y:.2f}, LToe Y-avg: {mean_toe_y:.2f}")
+                   if mean_toe_y > mean_heel_y + 75:
+                       print("  Strike Type: Frontfoot strike")
+                   elif mean_heel_y > mean_toe_y:
+                       print("  Strike Type: Heel strike")
+                   else:
+                       print("  Strike Type: Neutral strike")
+
+               # RIGHT FOOT CONTACT
+               if rheel_touch and not in_contact_R:
+                   in_contact_R = True
+                   print(f"\n Right Foot Contact Detected at Frame {i}")
+                   self.right_contact_frames.append(i+1)
+                   heel_y_vals = []
+                   toe_y_vals = []
+
+                   for j in range(i - 2, i + 3):
+                       future_frame = run_data[j][0][0]
+                       heel_y_vals.append(future_frame[heel_index_R][1])
+                       toe_y_vals.append(future_frame[toe_index_R][1])
+
+                   mean_heel_y = sum(heel_y_vals) / len(heel_y_vals)
+                   mean_toe_y = sum(toe_y_vals) / len(toe_y_vals)
+
+                   print(f"  RHeel Y-avg: {mean_heel_y:.2f}, RToe Y-avg: {mean_toe_y:.2f}")
+                   if mean_toe_y > mean_heel_y + 75:
+                       print("Strike Type: Frontfoot strike")
+                   elif mean_heel_y > mean_toe_y:
+                       print(" Strike Type: Heel strike")
+                   else:
+                       print(" Strike Type: Neutral strike")
+
+               # Reset contact when heel lifts again
+               if in_contact_L and lheel_y < lheel_baseline_y - (lheel_baseline_y * release_offset):
+                   in_contact_L = False
+
+               if in_contact_R and rheel_y < rheel_baseline_y - (rheel_baseline_y * release_offset):
+                   in_contact_R = False
+
+           except (IndexError, TypeError):
+               continue
+
+
+
+
 
 def get_footStrike(self):
        #calls the base line funtions first then  after y valuys reaches
