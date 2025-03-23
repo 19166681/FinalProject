@@ -300,7 +300,11 @@ class RunningAnalysis:
            except (IndexError, TypeError):
                continue
 
-
+ def correctPosture(self):
+       run_data = self.get_all_keypoints()
+       print("\ngetting  Posture ")
+       #works by creating a line from the shoulder, hip and the middle of the knees
+       # then checks if the angle is greater than 150 too see if good posture
 
 
 if __name__ == "__main__":
