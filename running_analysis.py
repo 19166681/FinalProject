@@ -6,10 +6,34 @@ import numpy as np
 
 class RunningAnalysis:
    def __init__(self, runs_directory):
-
       self.runs_directory = runs_directory
       #the actual json running keypoint data for all the runs
       self.runs_data=self.load_runs()
+
+      self.left_contact_frames = []
+      self.right_contact_frames = []
+      self.KEYPOINT_FOREHEAD = 0
+      self.KEYPOINT_SHOULDER = 1
+      self.KEYPOINT_LEFT_ELBOW = 2
+      self.KEYPOINT_RIGHT_ELBOW = 3
+      self.KEYPOINT_LEFT_WRIST = 4
+      self.KEYPOINT_RIGHT_WRIST = 5
+      self.KEYPOINT_HIP = 6
+      self.KEYPOINT_RIGHT_KNEE = 7
+      self.KEYPOINT_LEFT_KNEE = 8
+      self.KEYPOINT_RIGHT_ANKLE = 9
+      self.KEYPOINT_LEFT_ANKLE = 10
+      self.KEYPOINT_RIGHT_HEEL = 11
+      self.KEYPOINT_LEFT_HEEL = 12
+      self.KEYPOINT_RIGHT_TOE = 13
+      self.KEYPOINT_LEFT_TOE = 14
+
+
+
+      self.bad_posture_counter=0
+      self.bad_arm_form_counter=0
+      self.bad_footstrike_counter=0
+      self.bad_landing_counter=0
 
 
    def load_runs(self):
