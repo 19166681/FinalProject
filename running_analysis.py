@@ -303,43 +303,35 @@ class RunningAnalysis:
    def correctPosture(self):
        run_data = self.get_all_keypoints()
        print("\ngetting  Posture ")
-       #works by creating a line from the shoulder, hip and the middle of the knees
+       #works by creating a vector from the shoulder, hip and the middle of the knees
        # then checks if the angle is greater than 150 too see if good posture
        for i, frame in enumerate(run_data):
            try:
                keypoints = frame[0][0]
-
                shoulder = keypoints[self.KEYPOINT_SHOULDER]
                hip = keypoints[self.KEYPOINT_HIP]
                knee_L = keypoints[self.KEYPOINT_LEFT_KNEE]
                knee_R = keypoints[self.KEYPOINT_RIGHT_KNEE]
-               # midpoint of the knees
-               mid_knee_x = (knee_L[0] + knee_R[0]) / 2
-               mid_knee_y = (knee_L[1] + knee_R[1]) / 2
+               #coord between the left and right knee
+               mid_knee = (
+                   (knee_L[0] + knee_R[0]) / 2,
+                   (knee_L[1] + knee_R[1]) / 2
+               )
+               angle_deg = self.calculate_angle(shoulder, hip, mid_knee)
 
-               # Vectors of the shouilder and knees
-               vec_hip_to_shoulder = (shoulder[0] - hip[0], shoulder[1] - hip[1])
-               vec_hip_to_knees = (mid_knee_x - hip[0], mid_knee_y - hip[1])
-
-               # get angle between the vectors
-               dot_product = (vec_hip_to_shoulder[0] * vec_hip_to_knees[0] +
-                              vec_hip_to_shoulder[1] * vec_hip_to_knees[1])
-               magnitude1 = math.sqrt(vec_hip_to_shoulder[0] ** 2 + vec_hip_to_shoulder[1] ** 2)
-               magnitude2 = math.sqrt(vec_hip_to_knees[0] ** 2 + vec_hip_to_knees[1] ** 2)
-
-               if magnitude1 == 0 or magnitude2 == 0:
-                   print(f"Frame {i}: Invalid vector magnitude, skipping.")
+               if angle_deg is None:
+                   print(f"Frame {i}: Could not calculate posture angle.")
                    continue
 
-               angle_rad = math.acos(dot_product / (magnitude1 * magnitude2))
-               angle_deg = math.degrees(angle_rad)
                print(f"\nFrame {i} | Posture Angle: {angle_deg:.2f}°")
                if angle_deg >= 150:
                    print("Good posture")
                else:
-                   self.bad_posture_counter=self.bad_posture_counter+1
+                   self.bad_posture_counter += 1
                    print("Poor posture: Leaning forward")
 
+           except (IndexError, TypeError):
+               print(f"Frame {i}: Missing keypoints, skipping.")
 
 
  def calculate_angle(pointA, pointB, pointC):
