@@ -342,7 +342,7 @@ class RunningAnalysis:
 
 
 
-
+ def calculate_angle(pointA, pointB, pointC):
 if __name__ == "__main__":
    runs_folder=r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\runs"
    analysis=RunningAnalysis(runs_folder)
