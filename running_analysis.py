@@ -334,7 +334,43 @@ class RunningAnalysis:
                print(f"Frame {i}: Missing keypoints, skipping.")
 
 
- def calculate_angle(pointA, pointB, pointC):
+
+
+
+
+   def calculate_angle(self, pointA, pointB, pointC):
+       # creates vector for point a to b then b to c
+       # then uses dot product formula to calculate the angle betwween the two vectors
+       vec1 = (pointA[0] - pointB[0], pointA[1] - pointB[1])
+       vec2 = (pointC[0] - pointB[0], pointC[1] - pointB[1])
+       dot = vec1[0] * vec2[0] + vec1[1] * vec2[1]
+       mag1 = math.sqrt(vec1[0] ** 2 + vec1[1] ** 2)
+       mag2 = math.sqrt(vec2[0] ** 2 + vec2[1] ** 2)
+       # to prevent if one of the vector is 0 when dividing
+       if mag1 == 0 or mag2 == 0:
+           return None
+
+       angle_rad = math.acos(dot / (mag1 * mag2))
+       return math.degrees(angle_rad)
+
+   def correctArmForm(self):
+       # gets angle of elbow and check if below 110 to be considred good form
+       run_data = self.get_all_keypoints()
+       print("\n getting Arm Angles")
+
+       for i, frame in enumerate(run_data):
+           try:
+               keypoints = frame[0][0]
+               shoulder = keypoints[self.KEYPOINT_SHOULDER]
+               L_elbow = keypoints[self.KEYPOINT_LEFT_ELBOW]
+               R_elbow = keypoints[self.KEYPOINT_RIGHT_ELBOW]
+               L_wrist = keypoints[self.KEYPOINT_LEFT_WRIST]
+               R_wrist = keypoints[self.KEYPOINT_RIGHT_WRIST]
+
+               left_angle = self.calculate_angle(shoulder, L_elbow, L_wrist)
+               right_angle = self.calculate_angle(shoulder, R_elbow, R_wrist)
+
+
 if __name__ == "__main__":
    runs_folder=r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\runs"
    analysis=RunningAnalysis(runs_folder)
