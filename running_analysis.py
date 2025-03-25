@@ -1,11 +1,12 @@
 import json
 import os
-
+import math
 import numpy as np
 
 
 class RunningAnalysis:
    def __init__(self, runs_directory):
+
       self.runs_directory = runs_directory
       #the actual json running keypoint data for all the runs
       self.runs_data=self.load_runs()
@@ -30,10 +31,25 @@ class RunningAnalysis:
 
 
 
-      self.bad_posture_counter=0
-      self.bad_arm_form_counter=0
-      self.bad_footstrike_counter=0
-      self.bad_landing_counter=0
+
+
+      self.bad_posture_counter = {"counter": 0, "frames": []}
+      self.bad_arm_form_counter = {"counter": 0, "frames": []}
+      self.footstrike_counter = {
+          "frontFootStrike": 0,
+          "neutralStrike": 0,
+          "heelStrike": 0,
+          "frames": []}
+      self.bad_landing_counter = {"counter": 0, "frames": []}
+      self.total_frames =0
+      self.keypoints=[]
+      for run in self.runs_data:
+         for frame in run:
+            self.keypoints.append(frame['keypoints'])
+            self.total_frames += 1
+
+
+
 
 
    def load_runs(self):
@@ -57,11 +73,12 @@ class RunningAnalysis:
 
 
    def get_all_keypoints(self):
-      print("adadadadad")
+
       keypoints=[]
       for run in self.runs_data:
          for frame in run:
             keypoints.append(frame['keypoints'])
+
       return keypoints
 
    def print_keypoints(self):
@@ -91,7 +108,7 @@ class RunningAnalysis:
             print(f'Frame {i+1} : {frame["keypoints"]}')
 
    def test_function(self):
-       run_data = self.get_all_keypoints()
+       run_data = self.keypoints
 
        rheel_coords = []  # (y, x, frame)
        lheel_coords = []  # (y, x, frame)
@@ -99,11 +116,11 @@ class RunningAnalysis:
        for i, frame_keypoints in enumerate(run_data):
            if frame_keypoints:
                try:
-                   rheel_x = frame_keypoints[0][0][12][0]
-                   rheel_y = frame_keypoints[0][0][12][1]
+                   rheel_x = frame_keypoints[0][0][11][0]
+                   rheel_y = frame_keypoints[0][0][11][1]
 
-                   lheel_x = frame_keypoints[0][0][13][0]
-                   lheel_y = frame_keypoints[0][0][13][1]
+                   lheel_x = frame_keypoints[0][0][12][0]
+                   lheel_y = frame_keypoints[0][0][12][1]
 
                    rheel_coords.append((rheel_y, rheel_x, i))
                    lheel_coords.append((lheel_y, lheel_x, i))
@@ -147,15 +164,15 @@ class RunningAnalysis:
     #def finding_baseLine(self):
 
    def print_all_heel_y_values(self):
-       run_data = self.get_all_keypoints()
+       run_data = self.keypoints
 
        print("\nY-values for Right Heel (keypoint 12) and Left Heel (keypoint 13):\n")
 
        for i, frame_keypoints in enumerate(run_data):
            if frame_keypoints and len(frame_keypoints[0][0]) >= 14:
                try:
-                   rheel_y = frame_keypoints[0][0][12][1]  # Right heel Y
-                   lheel_y = frame_keypoints[0][0][13][1]  # Left heel Y
+                   rheel_y = frame_keypoints[0][0][11][1]  # Right heel Y
+                   lheel_y = frame_keypoints[0][0][12][1]  # Left heel Y
                    print(f"Frame {i + 1}: Rheel_Y = {rheel_y:.4f}, Lheel_Y = {lheel_y:.4f}")
                except IndexError:
                    print(f"Frame {i + 1}: Keypoint missing, skipping.")
@@ -165,71 +182,76 @@ class RunningAnalysis:
    #gets the lowest values of y and its corresponding x values then gets
    # mean of x value to find treadmill belt middle for the Lheel
    def get_treadmill_baseLine_forLheel(self):
-       run_data = self.get_all_keypoints()
+       run_data = self.keypoints
        lheel_points = []  # Stores tuples of (y, x, frame_index)
 
        # Loop through each frame's keypoints
        for i, frame_keypoints in enumerate(run_data):
            try:
                # Index 13 corresponds to the Left Heel (Lheel)
-               lheel = frame_keypoints[0][0][13]
+               lheel = frame_keypoints[0][0][12]
                x, y = lheel[0], lheel[1]  # Extract x and y coordinates
                lheel_points.append((y, x, i))  # Store as (y, x, frame number)
            except (IndexError, TypeError):
                print(f"Frame {i} missing Lheel keypoint, skipping.")
 
-       # Sorts by Y ascending  (lowest Y first = highest up on the screen)
-       lheel_points.sort()
+       # Sorts by Y ascending  (higest Y first = lower up on the screen)
+       lheel_points.sort(reverse=True)
 
-       # Take the lowest 10 Y-values and get their corresponding X and Y values
-       lowest_10 = lheel_points[:10]
-       x_values = [x for _, x, _ in lowest_10]
-       y_values = [y for y, _, _ in lowest_10]
+       # Take the higest 10 Y-values and get their corresponding X and Y values
+       highest_10 = lheel_points[:10]
+       x_values = [x for _, x, _ in highest_10]
+       y_values = [y for y, _, _ in highest_10]
 
        if x_values and y_values:
            mean_x = sum(x_values) / len(x_values)  # Mean of X values
            mean_y = sum(y_values) / len(y_values)  # Mean of Y values
 
-           # Print the 10 lowest points and their coordinates
-           print("\nLowest 10 Lheel Y-values with corresponding X-values:")
-           for y, x, frame in lowest_10:
-               print(f"Frame {frame}: Y = {y:.2f}, X = {x:.2f}")
-
+           # Prints the 10 lowest points and their coordinates
+           print("\nhighest 10 Lheel Y-values with corresponding X-values:")
+           for y, x, frame in highest_10:
+               #print(f"Frame {frame}: Y = {y:.2f}, X = {x:.2f}")
+               i=0
            # Output the means
-           print(f"\n➡️ Mean X-value of lowest 10 Lheel Y-values: {mean_x:.2f}")
-           print(f"➡️ Mean Y-value of lowest 10 Lheel Y-values: {mean_y:.2f}")
+           print(f"\n➡️ Mean X-value of highest 10 Lheel Y-values: {mean_x:.2f}")
+           print(f"➡️ Mean Y-value of highest 10 Lheel Y-values: {mean_y:.2f}")
+           return mean_x, mean_y
        else:
            print("No valid Lheel data found.")
+           return None, None
 
    def get_treadmill_baseLine_forRheel(self):
-       run_data = self.get_all_keypoints()
+       run_data = self.keypoints
        rheel_points = []
 
        for i, frame_keypoints in enumerate(run_data):
            try:
-               rheel = frame_keypoints[0][0][12]
+               rheel = frame_keypoints[0][0][11]
                x, y = rheel[0], rheel[1]
                rheel_points.append((y, x, i))
            except (IndexError, TypeError):
                print(f"Frame {i} missing Rheel keypoint, skipping.")
-
-       rheel_points.sort()
-       lowest_10 = rheel_points[:10]
-       x_values = [x for _, x, _ in lowest_10]
-       y_values = [y for y, _, _ in lowest_10]
+       rheel_points.sort(reverse=True)
+       highest_10 = rheel_points[:10]
+       x_values = [x for _, x, _ in highest_10]
+       y_values = [y for y, _, _ in highest_10]
 
        if x_values and y_values:
            mean_x = sum(x_values) / len(x_values)
            mean_y = sum(y_values) / len(y_values)
 
-           print("\nLowest 10 Rheel Y-values with corresponding X-values:")
-           for y, x, frame in lowest_10:
-               print(f"Frame {frame}: Y = {y:.2f}, X = {x:.2f}")
-
-           print(f"\n➡️ Mean X-value of lowest 10 Rheel Y-values: {mean_x:.2f}")
-           print(f"➡️ Mean Y-value of lowest 10 Rheel Y-values: {mean_y:.2f}")
+           print("\nhighest 10 Rheel Y-values with corresponding X-values:")
+           for y, x, frame in highest_10:
+            #print(f"Frame {frame}: Y = {y:.2f}, X = {x:.2f}")
+            i=0
+           print(f"\n➡️ Mean X-value of higehst 10 Rheel Y-values: {mean_x:.2f}")
+           print(f"➡️ Mean Y-value of higehst 10 Rheel Y-values: {mean_y:.2f}")
+           return mean_x, mean_y
        else:
            print("No valid Rheel data found.")
+           return None, None
+
+
 
    def get_footStrike(self):
        #calls the base line funtions first then  after y valuys reaches
@@ -240,7 +262,7 @@ class RunningAnalysis:
        # so lets say the mean y values of the toes is higher than the heels means front foot striker
        # if lower heel striker
        # if around the same neutral foot striker
-       run_data = self.get_all_keypoints()
+       run_data = self.keypoints
        lheel_baseline_x, lheel_baseline_y = self.get_treadmill_baseLine_forLheel()
        rheel_baseline_x, rheel_baseline_y = self.get_treadmill_baseLine_forRheel()
 
@@ -285,10 +307,16 @@ class RunningAnalysis:
                    print(f"  LHeel Y-avg: {mean_heel_y:.2f}, LToe Y-avg: {mean_toe_y:.2f}")
                    if mean_toe_y > mean_heel_y + 75:
                        print("  Strike Type: Frontfoot strike")
+                       self.footstrike_counter["frontFootStrike"] += 1
+                       self.footstrike_counter["frames"].append(i)
                    elif mean_heel_y > mean_toe_y:
                        print("  Strike Type: Heel strike")
+                       self.footstrike_counter["heelStrike"] += 1
+                       self.footstrike_counter["frames"].append(i)
                    else:
                        print("  Strike Type: Neutral strike")
+                       self.footstrike_counter["neutralStrike"] += 1
+                       self.footstrike_counter["frames"].append(i)
 
                # RIGHT FOOT CONTACT
                if rheel_touch and not in_contact_R:
@@ -308,11 +336,17 @@ class RunningAnalysis:
 
                    print(f"  RHeel Y-avg: {mean_heel_y:.2f}, RToe Y-avg: {mean_toe_y:.2f}")
                    if mean_toe_y > mean_heel_y + 75:
-                       print("Strike Type: Frontfoot strike")
+                       print("  Strike Type: Frontfoot strike")
+                       self.footstrike_counter["frontFootStrike"] += 1
+                       self.footstrike_counter["frames"].append(i)
                    elif mean_heel_y > mean_toe_y:
-                       print(" Strike Type: Heel strike")
+                       print("  Strike Type: Heel strike")
+                       self.footstrike_counter["heelStrike"] += 1
+                       self.footstrike_counter["frames"].append(i)
                    else:
-                       print(" Strike Type: Neutral strike")
+                       print("  Strike Type: Neutral strike")
+                       self.footstrike_counter["neutralStrike"] += 1
+                       self.footstrike_counter["frames"].append(i)
 
                # Reset contact when heel lifts again
                if in_contact_L and lheel_y < lheel_baseline_y - (lheel_baseline_y * release_offset):
@@ -324,8 +358,10 @@ class RunningAnalysis:
            except (IndexError, TypeError):
                continue
 
-   def correctPosture(self):
-       run_data = self.get_all_keypoints()
+
+
+   def getPosture(self):
+       run_data = self.keypoints
        print("\ngetting  Posture ")
        #works by creating a vector from the shoulder, hip and the middle of the knees
        # then checks if the angle is greater than 150 too see if good posture
@@ -351,17 +387,12 @@ class RunningAnalysis:
                if angle_deg >= 150:
                    print("Good posture")
                else:
-                   self.bad_posture_counter += 1
+                   self.bad_posture_counter["counter"] += 1
+                   self.bad_posture_counter["frames"].append(i)
                    print("Poor posture: Leaning forward")
 
            except (IndexError, TypeError):
                print(f"Frame {i}: Missing keypoints, skipping.")
-
-
-
-
-
-
    def calculate_angle(self, pointA, pointB, pointC):
        # creates vector for point a to b then b to c
        # then uses dot product formula to calculate the angle betwween the two vectors
@@ -377,9 +408,9 @@ class RunningAnalysis:
        angle_rad = math.acos(dot / (mag1 * mag2))
        return math.degrees(angle_rad)
 
-   def correctArmForm(self):
+   def getArmForm(self):
        # gets angle of elbow and check if below 110 to be considred good form
-       run_data = self.get_all_keypoints()
+       run_data = self.keypoints
        print("\n getting Arm Angles")
 
        for i, frame in enumerate(run_data):
@@ -393,6 +424,39 @@ class RunningAnalysis:
 
                left_angle = self.calculate_angle(shoulder, L_elbow, L_wrist)
                right_angle = self.calculate_angle(shoulder, R_elbow, R_wrist)
+
+
+
+               print(f"\nFrame {i}")
+
+               if left_angle is not None:
+                   print(f"Left Elbow Angle: {left_angle:.2f}°", end=" → ")
+                   if left_angle < 110:
+                       print("Good arm Form" )
+                   else:
+                       self.bad_arm_form_counter["counter"] += 1
+                       self.bad_arm_form_counter["frames"].append(i)
+                       print("Arm form Needs improvement")
+
+
+               else:
+                   print("Left arm angle could not be calculated.")
+
+               if right_angle is not None:
+                   print(f" Right Elbow Angle: {right_angle:.2f}°", end=" → ")
+                   if left_angle < 110:
+                       print("Good arm Form")
+                   else:
+                       self.bad_arm_form_counter["counter"] += 1
+                       self.bad_arm_form_counter["frames"].append(i)
+                       print("Arm form Needs improvement")
+
+
+
+               else:
+                   print(" Right arm angle could not be calculated.")
+           except (IndexError, TypeError):
+               print(f"Frame {i}: Missing keypoints, skipping.")
 
 
 if __name__ == "__main__":
