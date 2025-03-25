@@ -458,36 +458,128 @@ class RunningAnalysis:
            except (IndexError, TypeError):
                print(f"Frame {i}: Missing keypoints, skipping.")
 
+   def getFootLanding(self):
+       run_data = self.keypoints
+       print("\nEvaluating Foot Landing Alignment")
+       print("test icles")
+
+       # Left foot
+
+       for i in self.left_contact_frames:
+           try:
+               frame = run_data[i][0][0]
+
+               heel_x = frame[self.KEYPOINT_LEFT_HEEL][0]
+               toe_x = frame[self.KEYPOINT_LEFT_TOE][0]
+               mid_x = (heel_x + toe_x) / 2
+
+               # if hip key point not avaliable uses shoulder insteaad
+               hip_x = frame[self.KEYPOINT_HIP][0] if frame[self.KEYPOINT_HIP] else None
+               if hip_x is None or hip_x == 0:
+                   hip_x = frame[self.KEYPOINT_SHOULDER][0] if frame[self.KEYPOINT_SHOULDER] else None
+
+               if hip_x is None:
+                   print(f"Frame {i}: Hip and Shoulder keypoints missing, skippping.")
+                   continue
+
+               diff = abs(hip_x - mid_x)
+               print(
+                   f"\neft Foot Frame {i} | Hip X: {hip_x:.2f} | Mid-foot X: {mid_x:.2f} | Difference: {diff:.2f}")
+
+               if diff < 200:
+                   print(" Goood alignment: Hip over mid-foot.")
+               elif hip_x < mid_x:
+                   print("Hip too far behind foot (overstriding).")
+                   self.bad_landing_counter["counter"] += 1
+                   self.bad_landing_counter["frames"].append(i)
+               else:
+                   print("Hip too far ahead (possible brakingg).")
+                   self.bad_landing_counter["counter"] += 1
+                   self.bad_landing_counter["frames"].append(i)
+
+           except (IndexError, TypeError):
+               print(f"Error processing frame {i}, skipping.")
+
+       # Right foot
+       for i in self.right_contact_frames:
+           try:
+               frame = run_data[i][0][0]
+
+               heel_x = frame[self.KEYPOINT_RIGHT_HEEL][0]
+               toe_x = frame[self.KEYPOINT_RIGHT_TOE][0]
+               mid_x = (heel_x + toe_x) / 2
+
+               hip_x = frame[self.KEYPOINT_HIP][0] if frame[self.KEYPOINT_HIP] else None
+               if hip_x is None or hip_x == 0:
+                   hip_x = frame[self.KEYPOINT_SHOULDER][0] if frame[self.KEYPOINT_SHOULDER] else None
+
+               if hip_x is None:
+                   print(f"Frame {i}: Hip and Shoulder keypoints missing, skipping.")
+                   continue
+
+               diff = abs(hip_x - mid_x)
+               print(
+                   f"\nRight Foot Frame {i} |Hip X: {hip_x:.2f} | Mid-foot X: {mid_x:.2f} |  Difference: {diff:.2f}")
+
+               if diff < 200:
+                   print("Good alignment: Hip over mid-foot.")
+               elif hip_x < mid_x:
+                   print("Hip too far behind foot (overstriding).")
+                   self.bad_landing_counter["counter"] += 1
+                   self.bad_landing_counter["frames"].append(i)
+               else:
+                   print("Hip too far ahead (possible brakingg).")
+                   self.bad_landing_counter["counter"] += 1
+                   self.bad_landing_counter["frames"].append(i)
+
+           except (IndexError, TypeError):
+               print(f" Error processing frame {i}, skipping.")
+
+   def analyseForm(self):
+       self.getArmForm()
+       self.getPosture()
+       self.get_footStrike()
+       self.getFootLanding()
+
 
 if __name__ == "__main__":
+   print("zipzap")
    runs_folder=r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\runs"
    analysis=RunningAnalysis(runs_folder)
-   analysis.get_all_keypoints()
-   analysis.print_all_heel_y_values()
+
+   #analysis.print_all_heel_y_values()
    analysis.test_function()
-   analysis.get_treadmill_baseLine_forLheel()
-   analysis.get_treadmill_baseLine_forRheel()
+   #analysis.get_treadmill_baseLine_forLheel()
+   #analysis.get_treadmill_baseLine_forRheel()
    #analysis.print_keypoints()
+   analysis.analyseForm()
+   print(analysis.bad_posture_counter["counter"])
+   print(analysis.bad_arm_form_counter["counter"])
+   print(analysis.bad_landing_counter["counter"])
+
+
+   print("hey now  ",analysis.total_frames)
 
 
 
 
 '''
- 1 - 1
- 2 - shoulder
- 3 - L_elbow
- 4 - R_elbow
- 5 - L_wrist
- 6 - R_wrist
- 7 - Hip
- 8 - R_knee
- 9 - L_knee
- 10 - R_ankle
- 11 - L_ankle
- 12 - R_heel
- 13 - L_heel
- 14- R_toe
- 15- L_toe
+index of the keypoints
+ 0 - 1 (forehead)
+ 1 - shoulder
+ 2 - L_elbow
+ 3 - R_elbow
+ 4 - L_wrist
+ 5 - R_wrist
+ 6 - Hip
+ 7 - R_knee
+ 8 - L_knee
+ 9 - R_ankle
+ 10 - L_ankle
+ 11 - R_heel
+ 12 - L_heel
+ 13- R_toe
+ 14- L_toe
 
 '''
 
