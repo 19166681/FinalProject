@@ -1,7 +1,27 @@
+path: 'C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\train'
+train: 'C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\train\images'  
+val: 'C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\train\images'  
 
-path: '/Users/rovitsanthapa/Desktop'
-train: '/Users/rovitsanthapa/Desktop/test data'  # Path to training images
-val: '/Users/rovitsanthapa/Desktop/test data'  # Path to validation images
+kpt_shape: [15, 3]  #  (x, y, visibility)
+nc: 1  # Number of object classes
+names:
+  - body_keyPoints  
+kpt_labels:
+  - 1
+  - shoulder
+  - L_elbow
+  - R_elbow
+  - L_wrist
+  - R_wrist
+  - Hip
+  - R_knee
+  - L_knee
+  - R_ankle
+  - L_ankle
+  - R_heel
+  - L_heel
+  - R_toe
+  - L_toe
 
-nc: 3  # Number of classes
-names: ['goalPost', 'Person', 'sports ball', 'ballMark']  # Replace with your class names
+
+
