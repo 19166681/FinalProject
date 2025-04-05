@@ -544,7 +544,7 @@ class RunningAnalysis:
 
 if __name__ == "__main__":
    print("zipzap")
-   runs_folder=r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\runs"
+   runs_folder=r"data/runs"
    analysis=RunningAnalysis(runs_folder)
 
    #analysis.print_all_heel_y_values()
@@ -582,4 +582,5 @@ index of the keypoints
  14- L_toe
 
 '''
+
 
