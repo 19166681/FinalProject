@@ -12,7 +12,7 @@ from pathlib import Path
 from running_analysis import RunningAnalysis
 
 
-from PIL import Image, ExifTags
+
 
 
 
@@ -26,7 +26,7 @@ def load_yolo_model():
    """Load YOLOv8 model with custom weights."""
    #model_path = r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\yolov8_models\yolov8l-pose.pt"
 
-   model_path = r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\runs\pose\train2\weights\best.pt"
+   model_path = r"best.pt"
  # Path to trained model
 
    # Uncomment the following line to use the default YOLOv8 model
@@ -126,7 +126,7 @@ def process_video(video_path, output_dir, model):
    out.release()
    cv2.destroyAllWindows()
 
-   save_dir = r"C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\data\runs"
+   save_dir = r"data/runs"
    for filename in os.listdir(save_dir):
        file_path = os.path.join(save_dir, filename)
        if os.path.isfile(file_path):
@@ -243,7 +243,6 @@ if __name__ == "__main__":
 #python train.py --img 1280 --batch 16 --epochs 50 --data /Users/rovitsanthapa/Documents/GitHub/FinalProject/training.yml --weights yolov5s.pt
 
 #python train.py --img 1280--batch 16 --epochs 100 --data /Users/rovitsanthapa/Documents/GitHub/FinalProject/training.yml --weights yolov5s.pt
-
 
 
 
