@@ -12,7 +12,7 @@ Analyses treadmill running technique from video using a custom-trained YOLOv8 po
 
 ## Demo
 
-> Generate `demo.gif` by running `python make_demo_gif.py` after processing a video, then commit it.
+
 
 ![Demo](demo.gif)
 
