@@ -70,8 +70,6 @@ Training curves: [`runs/pose/train6/results.png`](runs/pose/train6/results.png)
 
 ## Screenshots
 
-> Take a screenshot of the results pop-up window and save it as `docs/results_screenshot.png`, then it will appear here.
-
 ![Results](docs/results_screenshot.png)
 
 ---
