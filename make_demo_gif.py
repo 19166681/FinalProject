@@ -1,9 +1,3 @@
-"""
-Run this once to generate demo.gif from the annotated output frames.
-Usage: python make_demo_gif.py
-Output: demo.gif in the project root (~5-8 MB, suitable for GitHub README)
-"""
-
 import glob
 import os
 from PIL import Image
@@ -12,7 +6,7 @@ FRAMES_DIR = "output"
 OUTPUT_PATH = "demo.gif"
 TARGET_WIDTH = 640
 FPS = 12
-MAX_FRAMES = 72  # ~6 seconds at 12 fps
+MAX_FRAMES = 72
 
 frame_paths = sorted(glob.glob(os.path.join(FRAMES_DIR, "frame_*.jpg")))
 if not frame_paths:
@@ -41,4 +35,4 @@ frames[0].save(
 size_mb = os.path.getsize(OUTPUT_PATH) / 1_000_000
 print(f"Saved {OUTPUT_PATH} ({size_mb:.1f} MB)")
 if size_mb > 10:
-    print("Warning: file is over 10 MB — GitHub may not render it inline. Try reducing MAX_FRAMES.")
+    print("Warning: over 10 MB — try reducing MAX_FRAMES.")
