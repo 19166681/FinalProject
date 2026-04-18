@@ -1,0 +1,24 @@
+path: 'C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\trainTreadmill'
+train: 'C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\trainTreadmill\images'  # Path to training images
+val: 'C:\Users\rocke\OneDrive\Desktop\uni\comp 6032 AI\FinalProject\trainTreadmill\images'  # Path to validation images
+
+kpt_shape: [2, 3]  # Max keypoints per object, (x, y, visibility)
+nc: 1  # Number of object classes
+names:
+  - body_keyPoints  # Ensure this matches nc
+kpt_labels:
+  - belt_start
+  - belt_end
+
+
+
+
+
+fliplr: 0.5  # 50% probability of horizontal flipping
+scale: 0.6   # Increase scaling augmentation to make model more robust
+translate: 0.1  # Allow slight translation (10%) to improve generalization
+degrees: 10  # Allow 10-degree random rotations for pose robustness
+hsv_h: 0.015  # Random hue adjustment
+hsv_s: 0.7  # Random saturation adjustment
+hsv_v: 0.4  # Random brightness adjustment
+

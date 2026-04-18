@@ -1,0 +1,61 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Windows path artifacts
+C:/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# Model weights (too large for GitHub without Git LFS)
+*.pt
+*.pth
+*.weights
+
+# Large training datasets (images and annotations)
+train/images/
+train/labels/
+trainTreadmill/
+framesOfVideo/
+
+# Training run artefacts — keep only train6 plots, ignore weights and all other runs
+runs/pose/train/
+runs/pose/train2/
+runs/pose/train6/weights/
+runs/pose/train[3-5]/
+runs/pose/train[7-9]/
+runs/pose/train[1-9][0-9]*/
+
+# Pre-trained base models
+yolov8_models/
+yolov5s.pt
+yolov8*.pt
+yolo11*.pt
+
+# Output frames and video (generated at runtime)
+output/
+data/runs/
+data/videos/
+
+# CometML experiment tracking
+.cometml-runs/
+
+# Jupyter
+.ipynb_checkpoints/
